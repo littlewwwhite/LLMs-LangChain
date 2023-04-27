@@ -3,7 +3,7 @@ from chains.local_doc_qa import LocalDocQA
 import os
 import nltk
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 nltk.data.path = [os.path.join(os.path.dirname(__file__), "nltk_data")] + nltk.data.path
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
                           top_k=VECTOR_SEARCH_TOP_K)
     vs_path = None
     while not vs_path:
-        filepath = input("Input your local knowledge file path 请输入本地知识文件路径：")
+        filepath = input("Input your local knowledge file path：")
         vs_path = local_doc_qa.init_knowledge_vector_store(filepath)
     history = []
     while True:

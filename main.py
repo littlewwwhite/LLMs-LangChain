@@ -1,6 +1,6 @@
 import gradio as gr
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import shutil
 from chains.local_doc_qa import LocalDocQA
 from configs.model_config import *
@@ -35,11 +35,11 @@ def upload_file(file):
         os.mkdir("content")
     filename = os.path.basename(file.name)
     shutil.move(file.name, "content/" + filename)
-    # file_list首位插入新上传的文件
+    # file_list insert
     file_list.insert(0, filename)
     return gr.Dropdown.update(choices=file_list, value=filename)
 
-# 其中query为用户输入的问题，vs_path为向量库路径，history为对话历史
+# query is the question, vs_path is the path of the knowledge base, history is the chat history
 def get_answer(query, vs_path, history):
     if vs_path:
         resp, history = local_doc_qa.get_knowledge_based_answer(
@@ -49,13 +49,13 @@ def get_answer(query, vs_path, history):
     return history, ""
     print("test successfull")
 
-# history为对话历史，status为当前状态
+# history is the chat history, status is the status of the model
 def update_status(history, status):
     history = history + [[None, status]]
     print(status)
     return history
 
-# 初始化模型
+# init model
 def init_model():
     try:
         local_doc_qa.init_cfg()
@@ -64,7 +64,7 @@ def init_model():
         print(e)
         return """模型未成功加载，请重试"""
 
-# 重新加载模型
+# reload model
 def reinit_model(llm_model, embedding_model, llm_history_len, top_k, history):
     try:
         local_doc_qa.init_cfg(llm_model=llm_model,
@@ -77,7 +77,7 @@ def reinit_model(llm_model, embedding_model, llm_history_len, top_k, history):
         model_status = """模型未成功加载，请重试"""
     return history + [[None, model_status]]
 
-# 文件加载至向量库
+# load file to vector store
 def get_vector_store(filepath, history):
     if local_doc_qa.llm and local_doc_qa.embeddings:
         vs_path = local_doc_qa.init_knowledge_vector_store(["content/" + filepath])
@@ -166,6 +166,7 @@ with gr.Blocks(css=block_css) as demo:
                             inputs=[llm_model, embedding_model, llm_history_len, top_k, chatbot],
                             outputs=chatbot
                             )
+
     # 将上传的文件保存到content文件夹下,并更新下拉框
     file.upload(upload_file,
                 inputs=file,
